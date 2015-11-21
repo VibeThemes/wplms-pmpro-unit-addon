@@ -28,7 +28,7 @@ function wplms_unit_show_pmpro_memberships($metabox_settings){
             }
             return $metabox_settings;
 }
-add_filter('the_content','wplms_unit_check_pmpro_membership',99999);
+add_filter('the_content','wplms_unit_check_pmpro_membership',999);
 function wplms_unit_check_pmpro_membership($content){
     global $post;
 
@@ -42,18 +42,17 @@ function wplms_unit_check_pmpro_membership($content){
     if ( in_array( 'paid-memberships-pro/paid-memberships-pro.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) && function_exists('pmpro_getAllLevels')) { 
 
         $membership_ids = get_post_meta($unit_id,'vibe_pmpro_membership',true);
-        print_r($membership_ids);
-         if(pmpro_hasMembershipLevel($membership_ids,$user_id) && !empty($membership_ids) && count($membership_ids) >= 1){
-            return $content;
-         }else{
-            $levels=pmpro_getAllLevels();
-            foreach($levels as $level){
-                $level_array[$level->id]=$level->name;
+            if(!empty($membership_ids) && count($membership_ids) >= 1){
+                if(pmpro_hasMembershipLevel($membership_ids,$user_id)){
+                    return $content;
+                }else{
+                    $levels=pmpro_getAllLevels($membership_ids);
+                    foreach($levels as $level){
+                        $level_array[$level->id]=$level->name;
+                    }
+                    $content = 'Please purchase membership plan ';
+                }
             }
-            if(!empty($level_array[$membership_ids])){
-                $content = 'Please purchase membership plan '.$level_array[$membership_ids];
-            }
-         }
     }
     return $content;
 }
